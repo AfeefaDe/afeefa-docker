@@ -1,0 +1,37 @@
+version: "2"
+
+syncs:
+  afeefa-backend-api:
+    src: '../backend-api'
+    host_disk_mount_mode: 'cached'
+    notify_terminal: true
+
+  afeefa-backend-ui:
+    src: '../backend-ui'
+    host_disk_mount_mode: 'cached'
+    notify_terminal: true
+
+  afeefa-frontend-api:
+    src: '../frontend-api'
+    host_disk_mount_mode: 'cached'
+    notify_terminal: true
+
+  afeefa-frontend-ui:
+    src: '../frontend-ui'
+    host_disk_mount_mode: 'cached'
+    notify_terminal: true
+
+  afeefa-ui-datastore:
+    src: '../ui-datastore'
+    host_disk_mount_mode: 'cached'
+    notify_terminal: true
+
+  afeefa-message-api:
+    src: '../message-api'
+    host_disk_mount_mode: 'cached'
+    notify_terminal: true
+
+  afeefa-wisdom-api:
+    src: '../wisdom-api'
+    host_disk_mount_mode: 'cached'
+    notify_terminal: true

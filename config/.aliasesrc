@@ -1,0 +1,9 @@
+# You may uncomment the following lines if you want `ls' to be colorized:
+export LS_OPTIONS='--color=auto'
+eval "`dircolors -b`"
+alias ls='ls $LS_OPTIONS'
+alias ll='ls $LS_OPTIONS -la'
+alias l='ls $LS_OPTIONS -lA'
+
+alias gs='git status'
+alias gpr='git pull --rebase'

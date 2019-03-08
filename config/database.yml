@@ -1,0 +1,38 @@
+# SQLite version 3.x
+#   gem install sqlite3
+#
+#   Ensure the SQLite 3 gem is defined in your Gemfile
+#   gem 'sqlite3'
+
+sqlite: &sqlite
+  adapter: sqlite3
+  pool: 5
+  timeout: 5000
+
+mysql: &mysql
+  adapter: mysql2
+  encoding: utf8
+  pool: 10
+  timeout: 5000
+  host: afeefa_backend_mysql
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test:
+  <<: *mysql
+  username: root
+  password: root
+  database: afeefa-test
+
+development:
+  <<: *mysql
+  username: root
+  password: root
+  database: afeefa_dev
+
+production:
+  <<: *mysql
+  username: root
+  password: root
+  database: afeefa_dev
