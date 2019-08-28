@@ -1,8 +1,41 @@
-version: '3'
+version: '3.7'
 
 services:
-  afeefa_backend_mysql:
+  # do not use service names with underscore because this triggers issues on connecting the app container to the db 
+  # /usr/local/lib/ruby/2.6.0/uri/generic.rb:208:in `initialize': the scheme mysql2 does not accept registry part: root:root@afeefa_backend_mysql:3306 (or bad hostname?) (URI::InvalidURIError)
+  # Mysql2::Error::ConnectionError: Can't connect to MySQL server on '127.0.0.1' (111 "Connection refused")
+  afeefabackendmysql:
     container_name: afeefa_backend_mysql
+    image: mysql:5.7
+    hostname: afeefa_backend_mysql
+    tty: true
+    environment:
+      MYSQL_ROOT_PASSWORD: ${BACKEND_MYSQL_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${BACKEND_MYSQL_MYSQL_DATABASE} 
+    command: --default-authentication-plugin=mysql_native_password --sql_mode=""
+    ports:
+      - "${BACKEND_MYSQL_PORT_EXTERN}:${BACKEND_MYSQL_PORT_INTERN}"
+
+  afeefabackendapi:
+    container_name: afeefa_backend_api
+    image: afeefa_backend_api
+    hostname: afeefa_backend_api
+    tty: true
+    depends_on:
+      - afeefabackendmysql
+    volumes:
+      - ../afeefa-backend-api/:/app/
+    build:
+      context: '.'
+      dockerfile: 'ruby/Dockerfile'
+    ports:
+      - "${BACKEND_API_PORT_EXTERN}:${BACKEND_API_PORT_INTERN}"
+    environment:
+      DATABASE_URL: mysql2://root:${BACKEND_MYSQL_MYSQL_ROOT_PASSWORD}@afeefabackendmysql:${BACKEND_MYSQL_PORT_INTERN}/${BACKEND_MYSQL_MYSQL_DATABASE}
+      PORT: ${BACKEND_API_PORT_INTERN}
+
+  afeefafrontendmysql:
+    container_name: afeefa_frontend_mysql
     image: mysql:5.7
     hostname: mysql
     tty: true
@@ -10,40 +43,23 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: afeefa_dev
     command: --default-authentication-plugin=mysql_native_password --sql_mode=""
-    volumes:
-      - afeefa_backend_mysql:/var/lib/mysql
     ports:
-      - "9907:3306"
+      - "${FRONTEND_MYSQL_PORT_EXTERN}:${FRONTEND_MYSQL_PORT_INTERN}"
 
-  afeefa_backend_api:
-    container_name: afeefa_backend_api
-    image: afeefa_backend_api
-    hostname: backend-api
+  afeefafrontendapi:
+    container_name: afeefa_frontend_api
+    image: afeefa_frontend_api
+    hostname: frontend-api
     tty: true
     depends_on:
-      - afeefa_backend_mysql
+      - afeefafrontendmysql
     volumes:
-      - afeefa-backend-api:/app/:nocopy
+      - ../afeefa-frontend-api/:/app/
     build:
       context: '.'
       dockerfile: 'ruby/Dockerfile'
     ports:
-      - "${PORT_EXTERN}:${PORT_INTERN}"
-
-volumes:
-  afeefa_backend_mysql:
-    driver: local
-  afeefa-backend-api:
-    external: true
-  afeefa-backend-ui:
-    external: true
-  afeefa-frontend-api:
-    external: true
-  afeefa-frontend-ui:
-    external: true
-  afeefa-ui-datastore:
-    external: true
-  afeefa-message-api:
-    external: true
-  afeefa-wisdom-api:
-    external: true
+      - "${FRONTEND_API_PORT_EXTERN}:${FRONTEND_API_PORT_INTERN}"
+    environment:
+      DATABASE_URL: mysql2://root:${FRONTEND_MYSQL_MYSQL_ROOT_PASSWORD}@afeefafrontendmysql:${FRONTEND_MYSQL_PORT_INTERN}/${FRONTEND_MYSQL_MYSQL_DATABASE}
+      PORT: ${FRONTEND_API_PORT_INTERN}
