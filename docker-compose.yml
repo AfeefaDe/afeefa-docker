@@ -1,7 +1,7 @@
 version: '3.7'
 
 services:
-  # do not use service names with underscore because this triggers issues on connecting the app container to the db 
+  # do not use service names with underscore because this triggers issues on connecting the app container to the db
   # /usr/local/lib/ruby/2.6.0/uri/generic.rb:208:in `initialize': the scheme mysql2 does not accept registry part: root:root@afeefa_backend_mysql:3306 (or bad hostname?) (URI::InvalidURIError)
   # Mysql2::Error::ConnectionError: Can't connect to MySQL server on '127.0.0.1' (111 "Connection refused")
   afeefabackendmysql:
@@ -11,7 +11,7 @@ services:
     tty: true
     environment:
       MYSQL_ROOT_PASSWORD: ${BACKEND_MYSQL_MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${BACKEND_MYSQL_MYSQL_DATABASE} 
+      MYSQL_DATABASE: ${BACKEND_MYSQL_MYSQL_DATABASE}
     command: --default-authentication-plugin=mysql_native_password --sql_mode=""
     ports:
       - "${BACKEND_MYSQL_PORT_EXTERN}:${BACKEND_MYSQL_PORT_INTERN}"
@@ -24,7 +24,7 @@ services:
     depends_on:
       - afeefabackendmysql
     volumes:
-      - ../afeefa-backend-api/:/app/
+      - ../backend-api/:/app/
     build:
       context: '.'
       dockerfile: 'ruby/Dockerfile'
@@ -54,7 +54,7 @@ services:
     depends_on:
       - afeefafrontendmysql
     volumes:
-      - ../afeefa-frontend-api/:/app/
+      - ../frontend-api/:/app/
     build:
       context: '.'
       dockerfile: 'ruby/Dockerfile'
