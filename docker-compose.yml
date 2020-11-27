@@ -34,25 +34,13 @@ services:
       DATABASE_URL: mysql2://root:${BACKEND_MYSQL_MYSQL_ROOT_PASSWORD}@afeefabackendmysql:${BACKEND_MYSQL_PORT_INTERN}/${BACKEND_MYSQL_MYSQL_DATABASE}
       PORT: ${BACKEND_API_PORT_INTERN}
 
-  afeefafrontendmysql:
-    container_name: afeefa_frontend_mysql
-    image: mysql:5.7
-    hostname: mysql
-    tty: true
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: afeefa_dev
-    command: --default-authentication-plugin=mysql_native_password --sql_mode=""
-    ports:
-      - "${FRONTEND_MYSQL_PORT_EXTERN}:${FRONTEND_MYSQL_PORT_INTERN}"
-
   afeefafrontendapi:
     container_name: afeefa_frontend_api
     image: afeefa_frontend_api
     hostname: frontend-api
     tty: true
     depends_on:
-      - afeefafrontendmysql
+      - afeefabackendmysql
     volumes:
       - ../frontend-api/:/app/
     build:
@@ -61,5 +49,5 @@ services:
     ports:
       - "${FRONTEND_API_PORT_EXTERN}:${FRONTEND_API_PORT_INTERN}"
     environment:
-      DATABASE_URL: mysql2://root:${FRONTEND_MYSQL_MYSQL_ROOT_PASSWORD}@afeefafrontendmysql:${FRONTEND_MYSQL_PORT_INTERN}/${FRONTEND_MYSQL_MYSQL_DATABASE}
+      DATABASE_URL: mysql2://root:${BACKEND_MYSQL_MYSQL_ROOT_PASSWORD}@afeefabackendmysql:${BACKEND_MYSQL_PORT_INTERN}/${BACKEND_MYSQL_MYSQL_DATABASE}
       PORT: ${FRONTEND_API_PORT_INTERN}
