@@ -4,7 +4,7 @@ services:
   # do not use service names with underscore because this triggers issues on connecting the app container to the db
   # /usr/local/lib/ruby/2.6.0/uri/generic.rb:208:in `initialize': the scheme mysql2 does not accept registry part: root:root@afeefa_backend_mysql:3306 (or bad hostname?) (URI::InvalidURIError)
   # Mysql2::Error::ConnectionError: Can't connect to MySQL server on '127.0.0.1' (111 "Connection refused")
-  afeefabackendmysql:
+  mysql:
     container_name: afeefa_backend_mysql
     image: mysql:5.7
     hostname: afeefa_backend_mysql
@@ -16,38 +16,60 @@ services:
     ports:
       - "${BACKEND_MYSQL_PORT_EXTERN}:${BACKEND_MYSQL_PORT_INTERN}"
 
-  afeefabackendapi:
+  backend-api:
     container_name: afeefa_backend_api
     image: afeefa_backend_api
     hostname: afeefa_backend_api
     tty: true
     depends_on:
-      - afeefabackendmysql
+      - mysql
     volumes:
       - ../backend-api/:/app/
+      - '$SSH_AUTH_SOCK:/ssh-agent'
     build:
       context: '.'
       dockerfile: 'ruby/Dockerfile'
     ports:
       - "${BACKEND_API_PORT_EXTERN}:${BACKEND_API_PORT_INTERN}"
     environment:
-      DATABASE_URL: mysql2://root:${BACKEND_MYSQL_MYSQL_ROOT_PASSWORD}@afeefabackendmysql:${BACKEND_MYSQL_PORT_INTERN}/${BACKEND_MYSQL_MYSQL_DATABASE}
+      DATABASE_URL: mysql2://root:${BACKEND_MYSQL_MYSQL_ROOT_PASSWORD}@mysql:${BACKEND_MYSQL_PORT_INTERN}/${BACKEND_MYSQL_MYSQL_DATABASE}
       PORT: ${BACKEND_API_PORT_INTERN}
+      SSH_AUTH_SOCK: /ssh-agent
+    networks:
+      - default
 
-  afeefafrontendapi:
+  frontend-api:
     container_name: afeefa_frontend_api
     image: afeefa_frontend_api
     hostname: frontend-api
     tty: true
     depends_on:
-      - afeefabackendmysql
+      - mysql
     volumes:
       - ../frontend-api/:/app/
+      - '$SSH_AUTH_SOCK:/ssh-agent'
     build:
       context: '.'
       dockerfile: 'ruby/Dockerfile'
     ports:
       - "${FRONTEND_API_PORT_EXTERN}:${FRONTEND_API_PORT_INTERN}"
     environment:
-      DATABASE_URL: mysql2://root:${BACKEND_MYSQL_MYSQL_ROOT_PASSWORD}@afeefabackendmysql:${BACKEND_MYSQL_PORT_INTERN}/${BACKEND_MYSQL_MYSQL_DATABASE}
+      DATABASE_URL: mysql2://root:${BACKEND_MYSQL_MYSQL_ROOT_PASSWORD}@mysql:${BACKEND_MYSQL_PORT_INTERN}/${BACKEND_MYSQL_MYSQL_DATABASE}
       PORT: ${FRONTEND_API_PORT_INTERN}
+      SSH_AUTH_SOCK: /ssh-agent
+    networks:
+      - default
+
+  backend-ui:
+    container_name: afeefa_backend_ui
+    hostname: afeefa_backend
+    image: node:8.9
+    tty: true
+    ports:
+      - '8080:8080'
+    volumes:
+    - ../backend-ui:/afeefa
+    working_dir: /afeefa
+    command: npm run dev
+    networks:
+      - default
