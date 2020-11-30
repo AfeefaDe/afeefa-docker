@@ -7,3 +7,5 @@ alias l='ls $LS_OPTIONS -lA'
 
 alias gs='git status'
 alias gpr='git pull --rebase'
+
+alias rails='bundle exec rails'
