@@ -21,8 +21,6 @@ RUN mkdir -p /root/.ssh; \
   echo "Host *" > /root/.ssh/config; \
   echo " StrictHostKeyChecking no" >> /root/.ssh/config
 
-RUN bundle config --global frozen 1
-
 WORKDIR /
 
 COPY ./ruby/entrypoint.sh ./entrypoint.sh
