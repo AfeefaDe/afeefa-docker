@@ -9,3 +9,4 @@ alias gs='git status'
 alias gpr='git pull --rebase'
 
 alias rails='bundle exec rails'
+alias cap='bundle exec cap'
